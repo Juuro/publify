@@ -1,10 +1,10 @@
 source 'https://rubygems.org'
 
 if ENV["HEROKU"]
-  ruby '2.0.0'
+  ruby '2.1.1'
 
   gem "pg"
-  gem "thin" # Change this to another web server if you want (ie. unicorn, passenger, puma...)
+  gem "unicorn" # Change this to another web server if you want (ie. unicorn, passenger, puma...)
   gem "rails_12factor"
 else
 
