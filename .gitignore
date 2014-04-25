@@ -31,5 +31,5 @@ bin/
 /vendor/bundle
 /themes/*
 !/themes/bootstrap
-!/themes/typographic
+!/themes/clear
 gems/
