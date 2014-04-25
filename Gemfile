@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-if ENV["HEROKU"]
+if ENV["DYNO"] || ENV["STACK"]
   ruby '2.1.1'
 
   gem "pg"
