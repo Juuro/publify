@@ -19,7 +19,7 @@ h1 a:hover {
 }
 
 .comments span {
-  
+  top: 3px;
 }
 
 p.subtitle {
@@ -78,4 +78,8 @@ border-left: 1px solid #111111;
 .navbar .nav > li > a {
         color: #eee;
         padding: 8px 10px;
+}
+
+.credits {
+  color: #b3b3b3;
 }
