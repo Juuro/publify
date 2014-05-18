@@ -15,8 +15,7 @@
     <div id='main'>
       <div class='container'>
         <div class="row">
-          <div class='span1'></div>
-          <div class='span10'>
+          <div class='span12'>
             <%- if controller.controller_name == 'articles' and controller.action_name.include? 'index' %>
               <h1><%= link_to(this_blog.blog_name, this_blog.base_url) %></h1>
             <%- else %>
@@ -29,8 +28,7 @@
 
       <div id='page' class='container'>
         <div class='row'>
-          <div class='span1'></div>
-          <div class='span10'>
+          <div class='span12'>
             <%= yield %>
           </div>
         </div>
