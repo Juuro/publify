@@ -35,13 +35,9 @@ p.subtitle {
   padding-top: 290px;
 }
 
-#external {
-  padding: 0 30px;
-  max-width: 1200px;
+.container {
+  max-width: 600px;
   margin: 0 auto;
-}
-
-#main {
 }
 
 #page {

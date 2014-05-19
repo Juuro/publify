@@ -11,30 +11,21 @@
   </style>
 </head>
 <body>
-  <div id="external">
-    <div id='main'>
-      <div class='container'>
-        <div class="row">
-          <div class='span12'>
-            <%- if controller.controller_name == 'articles' and controller.action_name.include? 'index' %>
-              <h1><%= link_to(this_blog.blog_name, this_blog.base_url) %></h1>
-            <%- else %>
-                <p id='title'><%= link_to(this_blog.blog_name, this_blog.base_url) %></p>
-            <%- end %>
-              <p class='subtitle'><%= this_blog.blog_subtitle %></p>
-          </div>
-        </div>
-      </div>
+  <div class='container'>
+    <header class="masthead">
+    <%- if controller.controller_name == 'articles' and controller.action_name.include? 'index' %>
+      <h1><%= link_to(this_blog.blog_name, this_blog.base_url) %></h1>
+    <%- else %>
+        <p id='title'><%= link_to(this_blog.blog_name, this_blog.base_url) %></p>
+    <%- end %>
+      <p class='subtitle'><%= this_blog.blog_subtitle %></p>
+    </header>
 
-      <div id='page' class='container'>
-        <div class='row'>
-          <div class='span12'>
-            <%= yield %>
-          </div>
-        </div>
-      </div>
+    <%= yield %>
+
+    <footer class="colophon">
       <p style='text-align: center' class="credits"><small>Powered by <a href='http://publify.co'>Publify</a> – Theme <a href='http://blog.i-wars.net'>Sebastian Engel</a></small></p>
-    </div>
+    </footer>
   </div>
 
   <script type="text/javascript">
