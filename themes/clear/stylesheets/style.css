@@ -98,7 +98,7 @@ border-left: 1px solid #111111;
 }
 
 .hentry h2, .article h1 {
-  font-weight: bolder;
+  font-weight: lighter;
   letter-spacing: 2px;
   border: none;
   margin-bottom: 10px;
