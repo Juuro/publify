@@ -95,16 +95,21 @@ border-left: 1px solid #111111;
 }
 
 .hentry aside .date {
-  font-weight: bold;
   line-height: 19px;
 }
 
 .hentry aside .date .day_month {
-  font-size: 25px;
+  font-size: 28px;
+  font-weight: lighter;
 }
 
 .hentry aside .date .year {
   font-size: 31px;
+  font-weight: bold;
+}
+
+.hentry aside .comments {
+  text-align: center;
 }
 
 .hentry aside .comments a {
