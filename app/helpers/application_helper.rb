@@ -264,4 +264,8 @@ module ApplicationHelper
     end
   end
 
+  def comment_count(article)
+    article.published_comments.size unless article.published_comments.size == 0
+  end
+
 end

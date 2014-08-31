@@ -5,7 +5,13 @@
     <%#= render 'articles/meta', article: article %>
   </div>
 
-  <div class='comments'>
-    <%= render 'articles/comment_counter', article: article %>
-  </div>
+  <aside>
+    <div class="date">
+      <span class="day_month"><%= l(article.created_at, :format => "%d.%m.") %></span>
+      <span class="year"><%= l(article.created_at, :format => "%Y") %></span>
+    </div>
+    <div class='comments'>
+      <%= render 'articles/comment_counter', article: article %>
+    </div>
+  </aside>
 </article>
