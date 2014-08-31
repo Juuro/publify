@@ -1,5 +1,4 @@
 
 
 <%= link_to t('.comments', count: article.published_comments.size), article.permalink_url+"#disqus_thread", data_disqus_identifier: ''  %>
-<%= comment_count(article) %>
 <%= (controller.controller_name == 'redirect') ? content_tag(:span, '', class: 'glyphicon glyphicon-comment') : link_to_permalink(article, content_tag(:span, '', class: 'glyphicon glyphicon-comment')) %>
