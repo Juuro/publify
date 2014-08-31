@@ -1,8 +1,21 @@
+.masthead {
+  text-align: center;
+}
+
+.masthead h1 {
+  font-size: 60px;
+  font-weight: bolder;
+}
+
 #logo h1, p#title {
   font-size: 30px;
   line-height: 48px;
   font-weight: bold;
   margin-bottom: 0;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
@@ -84,10 +97,21 @@ border-left: 1px solid #111111;
   position: relative;
 }
 
+.hentry h2, .article h1 {
+  font-weight: bolder;
+  letter-spacing: 2px;
+  border: none;
+  margin-bottom: 10px;
+}
+
+.hentry p, .article p {
+  line-height: 24px;
+}
+
 .hentry aside {
   color: #dddddd;
   position: absolute;
-  top: 42px;
+  top: 56px;
   left: -80px;
   width: 70px;
   margin-right: 10px;
@@ -118,4 +142,11 @@ border-left: 1px solid #111111;
 
 .hentry aside .comments a:hover {
   color: #ff424f;
+}
+
+.article-separator {
+  width: 150px;
+  margin: 50px auto;
+  border-top: 6px solid #eeeeee;
+  display: block;
 }
