@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 if ENV["DYNO"] || ENV["STACK"]
-  ruby '2.1.1'
+  ruby '2.1.2'
 
   gem "pg"
   gem "unicorn" # Change this to another web server if you want (ie. unicorn, passenger, puma...)
