@@ -69,7 +69,7 @@ de:
     comment_preview:
       is_about_to_say: "will sagen"
     meta:
-      published_on: "Published on %{publish_date_and_time} by %{by}, tags %{tags}"
+      published_on: "Veröffentlicht am %{publish_date_and_time} von %{by}, tags %{tags}"
     article:
       posted_by: "Angelegt von"
       this_entry_was_posted_on: "This entry was posted on %{published_at}"
@@ -550,11 +550,11 @@ de:
       bulkops:
         error: "Not implemented"
         success_deleted_spam: "All spam have been deleted"
-        success_mark_as_ham: 
+        success_mark_as_ham:
           zero: "No item selected to mark as Ham"
           one: "Marked 1 item as Ham"
           other: "Marked %{count} items as Ham"
-        success_mark_as_spam: 
+        success_mark_as_spam:
           zero: "No item selected to mark as Spam"
           one: "Marked 1 item as Spam"
           other: "Marked %{count} items as Spam"

@@ -16,6 +16,7 @@
 
 body {
   -webkit-font-smoothing: antialiased;
+  font-size: 16px;
 }
 
 a {
@@ -80,8 +81,8 @@ img.centered, img.alignleft, img.alignright, img.thumb {
 }
 
 .navbar .nav > li {
-border-left: 1px solid #111111;
-    border-right: 1px solid #444444;
+  border-left: 1px solid #111111;
+  border-right: 1px solid #444444;
 }
 
 .navbar .nav > li > a {
@@ -104,14 +105,14 @@ border-left: 1px solid #111111;
   margin-bottom: 10px;
 }
 
-.hentry p, .article p {
-  line-height: 24px;
+.hentry .e-content, .article p {
+  line-height: 26px;
 }
 
 .hentry aside {
   color: #dddddd;
   position: absolute;
-  top: 56px;
+  top: 59px;
   left: -80px;
   width: 70px;
   margin-right: 10px;
@@ -149,4 +150,8 @@ border-left: 1px solid #111111;
   margin: 50px auto;
   border-top: 6px solid #eeeeee;
   display: block;
+}
+
+.meta {
+  color: #cccccc;
 }
