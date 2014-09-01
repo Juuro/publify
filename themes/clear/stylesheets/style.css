@@ -98,6 +98,10 @@ img.centered, img.alignleft, img.alignright, img.thumb {
   position: relative;
 }
 
+.hentry h2 {
+  font-size: 40px; 
+}
+
 .hentry h2, .article h1 {
   font-weight: lighter;
   letter-spacing: 2px;
@@ -112,7 +116,7 @@ img.centered, img.alignleft, img.alignright, img.thumb {
 .hentry aside {
   color: #dddddd;
   position: absolute;
-  top: 59px;
+  top: 69px;
   left: -80px;
   width: 70px;
   margin-right: 10px;
