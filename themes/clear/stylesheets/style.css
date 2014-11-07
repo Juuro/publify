@@ -96,7 +96,7 @@ img.centered, img.alignleft, img.alignright, img.thumb {
 
 .article img {
   max-width: 100%;
-  margin: 10px;
+  margin: 10px 0;
 }
 
 .hentry {
