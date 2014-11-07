@@ -94,7 +94,7 @@ img.centered, img.alignleft, img.alignright, img.thumb {
   color: #b3b3b3;
 }
 
-.article img {
+.article img, .article iframe {
   max-width: 100%;
   margin: 10px 0;
 }
