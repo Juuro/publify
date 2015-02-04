@@ -7,14 +7,13 @@ class User < ActiveRecord::Base
   belongs_to :profile
   belongs_to :text_filter
   belongs_to :resource
-  
+
   delegate :name, :to => :text_filter, :prefix => true
   delegate :label, :to => :profile, :prefix => true
 
   has_many :notifications, :foreign_key => 'notify_user_id'
-  has_many :notify_contents, :through => :notifications,
-    :source => 'notify_content',
-    :uniq => true
+  has_many :notify_contents, -> { uniq }, :through => :notifications,
+    :source => 'notify_content'
 
   has_many :articles
 
@@ -50,11 +49,6 @@ class User < ActiveRecord::Base
   end
 
   attr_accessor :last_venue
-
-  def initialize(*args)
-    super
-    self.settings ||= {}
-  end
 
   def first_and_last_name
     return '' unless firstname.present? && lastname.present?
