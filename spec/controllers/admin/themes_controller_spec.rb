@@ -1,6 +1,6 @@
-require 'spec_helper'
+require 'rails_helper'
 
-describe Admin::ThemesController do
+describe Admin::ThemesController, :type => :controller do
   render_views
 
   before do
@@ -18,7 +18,7 @@ describe Admin::ThemesController do
 
     it "assigns @themes for the :index action" do
       assert_response :success
-      assert_not_nil assigns(:themes)
+      expect(assigns(:themes)).not_to be_nil
     end
   end
 
@@ -28,7 +28,7 @@ describe Admin::ThemesController do
   end
 
   it "returns succes for the :preview action" do
-    get :preview, :theme => 'bootstrap'
+    get :preview, :theme => 'bootstrap-2'
     assert_response :success
   end  
 end

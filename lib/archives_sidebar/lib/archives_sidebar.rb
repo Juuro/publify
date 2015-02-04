@@ -9,7 +9,7 @@ class ArchivesSidebar < Sidebar
   def self.date_func
     @date_func ||=
       begin
-        if Content.connection.kind_of?(ActiveRecord::ConnectionAdapters::SQLiteAdapter)
+        if Content.connection.kind_of?(ActiveRecord::ConnectionAdapters::SQLite3Adapter)
           "strftime('%Y', published_at) as year, strftime('%m', published_at) as month"
         else
           "extract(year from published_at) as year,extract(month from published_at) as month"
@@ -41,3 +41,5 @@ class ArchivesSidebar < Sidebar
     end
   end
 end
+
+Sidebar.register_sidebar ArchivesSidebar

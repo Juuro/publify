@@ -46,16 +46,16 @@ function save_article_tags() {
 
 function doneTyping () {
   $( "#save-bar").fadeIn(2000, function() {
-    
+
   });
 }
 
 function set_savebar() {
   var typingTimer;
-  var doneTypingInterval = 5000;
+  var doneTypingInterval = 3000;
   
   $( "#article_body_and_extended" ).keydown(function() {
-    $( "#save-bar").fadeOut(3000, function() {
+    $( "#save-bar").fadeOut(2000, function() {
       
     });
     clearTimeout(typingTimer);
@@ -64,6 +64,16 @@ function set_savebar() {
   $('#article_body_and_extended').keyup(function(){
       typingTimer = setTimeout(doneTyping, doneTypingInterval);
   }); 
+}
+
+// From http://www.shawnolson.net/scripts/public_smo_scripts.js
+function check_all(checkbox) {
+  var form = checkbox.form, z = 0;
+  for(z=0; z<form.length;z++){
+    if(form[z].type == 'checkbox' && form[z].name != 'checkall'){
+      form[z].checked = checkbox.checked;
+    }
+  }
 }
 
 $(document).ready(function() {
@@ -75,3 +85,7 @@ $(document).ready(function() {
   $('#page_form').each(function(e){set_widerea($('#page_body'))});
 });
 
+$(document).delegate('*[data-toggle="lightbox"]', 'click', function(event) {
+    event.preventDefault();
+    $(this).ekkoLightbox();
+}); 

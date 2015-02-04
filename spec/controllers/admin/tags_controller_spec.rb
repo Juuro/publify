@@ -1,6 +1,6 @@
-require 'spec_helper'
+require 'rails_helper'
 
-describe Admin::TagsController do
+describe Admin::TagsController, :type => :controller do
   let!(:blog) { create(:blog) }
   let!(:user) { create(:user, login: 'henri', profile: create(:profile_admin)) }
 
@@ -32,7 +32,7 @@ describe Admin::TagsController do
 
         context "with view" do
           render_views
-          it { expect(response).to have_selector("form[action='/admin/tags/destroy/#{tag.id}'][method='post']") }
+          it { expect(response.body).to have_selector("form[action='/admin/tags/destroy/#{tag.id}'][method='post']") }
         end
       end
 

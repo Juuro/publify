@@ -13,12 +13,12 @@ class Article < Content
   validates_uniqueness_of :guid
   validates_presence_of :title
 
-  has_many :pings, dependent: :destroy, order: "created_at ASC"
-  has_many :trackbacks, dependent: :destroy, order: "created_at ASC"
-  has_many :feedback, order: "created_at DESC"
-  has_many :resources, order: "created_at DESC", dependent: :nullify
+  has_many :pings, -> { order('created_at ASC') }, dependent: :destroy
+  has_many :trackbacks, -> { order('created_at ASC') }, dependent: :destroy
+  has_many :feedback, -> { order('created_at DESC') }
+  has_many :resources, -> {order("created_at DESC") }, dependent: :nullify
   has_many :triggers, as: :pending_item
-  has_many :comments, dependent: :destroy, order: "created_at ASC" do
+  has_many :comments, -> {order('created_at ASC')}, dependent: :destroy do
     # Get only ham or presumed_ham comments
     def ham
       where(state: ["presumed_ham", "ham"])
@@ -30,16 +30,14 @@ class Article < Content
     end
   end
 
-  with_options(:conditions => { :published => true }, :order => 'created_at ASC') do |this|
-    this.has_many :published_comments, class_name: "Comment"
-    this.has_many :published_trackbacks, class_name: "Trackback"
-    this.has_many :published_feedback, class_name: "Feedback"
-  end
+  has_many :published_comments,    -> { where(published: true).order('created_at ASC') }, class_name: "Comment"
+  has_many :published_trackbacks,  -> { where(published: true).order('created_at ASC') }, class_name: "Trackback"
+  has_many :published_feedback,    -> { where(published: true).order('created_at ASC') }, class_name: "Feedback"
 
-  has_and_belongs_to_many :tags
+  has_and_belongs_to_many :tags, join_table: 'articles_tags'
 
   before_create :create_guid
-  before_save :set_published_at, :ensure_settings_type, :set_permalink
+  before_save :set_published_at, :set_permalink
   after_save :post_trigger, :keywords_to_tags, :shorten_url
 
   scope :drafts, lambda { where(state: 'draft').order('created_at DESC') }
@@ -72,17 +70,7 @@ class Article < Content
                                        :handles       => [:withdraw,
                                                           :post_trigger,
                                                           :send_pings, :send_notifications,
-                                                          :published_at=, :just_published?])
-
-  def initialize(*args)
-    super
-    # Yes, this is weird - PDC
-    begin
-      self.settings ||= {}
-    rescue
-      self.settings = {}
-    end
-  end
+                                                          :published_at=, :published=, :just_published?])
 
   def set_permalink
     return if self.state == 'draft' || self.permalink.present?
@@ -196,12 +184,12 @@ class Article < Content
     req_params[:published_at] = date_range if date_range
 
     return nil if req_params.empty? # no search if no params send
-    article = find_published(:first, :conditions => req_params)
+    article = published.where(req_params).first
     return article if article
 
     if params[:title]
       req_params[:permalink] = CGI.escape(params[:title])
-      article = find_published(:first, :conditions => req_params)
+      article = published.where(req_params).first
       return article if article
     end
 
@@ -225,7 +213,7 @@ class Article < Content
   end
 
   def interested_users
-    User.find_all_by_notify_on_new_articles(true)
+    User.where(notify_on_new_articles: true)
   end
 
   def notify_user_via_email(user)
@@ -257,14 +245,6 @@ class Article < Content
   def in_feedback_window?
     self.blog.sp_article_auto_close.zero? ||
       self.published_at.to_i > self.blog.sp_article_auto_close.days.ago.to_i
-  end
-
-  def cast_to_boolean(value)
-    ActiveRecord::ConnectionAdapters::Column.value_to_boolean(value)
-  end
-  # Cast the input value for published= before passing it to the state.
-  def published=(newval)
-    state.published = cast_to_boolean(newval)
   end
 
   def content_fields
@@ -321,13 +301,6 @@ class Article < Content
   def set_published_at
     if self.published and self[:published_at].nil?
       self[:published_at] = self.created_at || Time.now
-    end
-  end
-
-  def ensure_settings_type
-    if settings.is_a?(String)
-      # Any dump access forcing de-serialization
-      password.blank?
     end
   end
 

@@ -89,9 +89,11 @@ Common attributes:
 
           width  = thumbdetails['width']
           height = thumbdetails['height']
-          thumburl    = thumbdetails['source']
 
-          displayurl    = displaydetails['source']
+          # use protocol-relative URL after getting the source address
+          # so not to break HTTPS support
+          thumburl = thumbdetails['source'].sub(/^https?:/, '')
+          displayurl = displaydetails['source'].sub(/^https?:/, '')
 
           caption ||= flickrimage.description
           title ||= flickrimage.title
@@ -118,7 +120,7 @@ Common attributes:
         end
 
         set_whiteboard blog, content unless content.nil?
-        %{<a href="#{displayurl}" rel="#{rel}" title="#{title}"><img src="#{thumburl}" #{%{class="#{theclass}" } unless theclass.nil?}#{%{width="#{width}" } unless width.nil?}#{%{height="#{height}" } unless height.nil?}alt="#{alt}" title="#{title}"/></a>#{captioncode}}
+        %{<a href="#{displayurl}" data-toggle="#{rel}" title="#{title}"><img src="#{thumburl}" #{%{class="#{theclass}" } unless theclass.nil?}#{%{width="#{width}" } unless width.nil?}#{%{height="#{height}" } unless height.nil?}alt="#{alt}" title="#{title}"/></a>#{captioncode}}
       end
 
       def self.set_whiteboard(blog, content)

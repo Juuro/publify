@@ -1,5 +1,5 @@
 class Sidebar < ActiveRecord::Base
-  serialize :config
+  serialize :config, Hash
 
   class Field
     attr_accessor :key
@@ -115,33 +115,11 @@ class Sidebar < ActiveRecord::Base
     end
   end
 
-  def self.find *args
-    begin
-      super
-    rescue ActiveRecord::SubclassNotFound
-      available = available_sidebars.map {|klass| klass.to_s}
-      self.inheritance_column = :bogus
-      super.each do |record|
-        unless available.include? record.type
-          record.delete
-        end
-      end
-      self.inheritance_column = :type
-      super
-    end
-  end
-
-  def self.find_all_visible
-    where('active_position is not null').order('active_position')
-  end
-
-  def self.find_all_staged
-    where('staged_position is not null').order('staged_position')
-  end
+  scope :valid, ->() { where(type: available_sidebar_types) }
 
   def self.ordered_sidebars
     os = []
-    Sidebar.all.each do |s| 
+    Sidebar.valid.each do |s|
       if s.staged_position
         os[s.staged_position] = ((os[s.staged_position] || []) << s).uniq
       elsif s.active_position
@@ -208,8 +186,28 @@ class Sidebar < ActiveRecord::Base
     @display_name || short_name.humanize
   end
 
-  def self.available_sidebars
-    Sidebar.descendants.sort_by { |klass| klass.to_s }
+  class << self
+    attr_accessor :view_root
+
+    # TODO: Avoid making this available from subclasses
+    def register_sidebar klass
+      registered_sidebars << klass
+      @available_sidebar_types = nil
+    end
+
+    def available_sidebars
+      registered_sidebars.sort_by(&:to_s)
+    end
+
+    def available_sidebar_types
+      registered_sidebars.map(&:to_s).sort
+    end
+
+    private
+
+    def registered_sidebars
+      @registered_sidebars ||= []
+    end
   end
 
   def self.fields=(newval)
@@ -226,38 +224,12 @@ class Sidebar < ActiveRecord::Base
     end
   end
 
-  class << self
-    attr_accessor :view_root
-  end
-
   def blog
     Blog.default
   end
 
-  def initialize(*args)
-    if block_given?
-      super(*args) { |instance| yield instance }
-    else
-      super(*args)
-    end
-    self.class.fields.each do |field|
-      unless config.has_key?(field.key)
-        config[field.key] = field.default
-      end
-    end
-  end
-
-
   def publish
     self.active_position = self.staged_position
-  end
-
-  def config
-    self[:config] ||= { }
-  end
-
-  def sidebar_controller
-    @sidebar_controller ||= SidebarController.available_sidebars.find { |s| s.short_name == self.controller }
   end
 
   def html_id
