@@ -342,6 +342,7 @@ DEPENDENCIES
   jquery-rails (~> 3.1.2)
   jquery-ui-rails (~> 5.0.2)
   kaminari
+  kgio
   mini_magick (~> 3.8.1)
   non-stupid-digest-assets
   pg

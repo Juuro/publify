@@ -6,6 +6,7 @@ if ENV["HEROKU"]
   gem "pg"
   gem "unicorn" # Change this to another web server if you want (ie. unicorn, passenger, puma...)
   gem "rails_12factor"
+  gem "kgio"
 else
 
   require 'yaml'
@@ -36,6 +37,7 @@ else
   end
 end
 
+gem "kgio"
 gem 'rails', '~> 4.2.0'
 
 # Use SCSS for stylesheets
