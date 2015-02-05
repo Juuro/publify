@@ -38,6 +38,7 @@ else
 end
 
 gem "kgio"
+gem "pg"
 gem 'rails', '~> 4.2.0'
 
 # Use SCSS for stylesheets
