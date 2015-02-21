@@ -64,14 +64,14 @@ class Blog < ActiveRecord::Base
   setting :image_medium_size,          :integer, 600
 
   # SEO
-  setting :meta_description,           :string, 'This is a personal blog about Juuros favourite activities. At first he is a passionate photgrapher who shares his newly learned skills on this blog. He\'s a critical Apple user who loves the company. Since several years he participates in mountainbiking races with a amateur approach. For a living Juuro is a frontent webdeveloper in Berlin, Germany.'
+  setting :meta_description,           :string, ''
   setting :meta_keywords,              :string, ''
   setting :google_analytics,           :string, ''
   setting :feedburner_url,             :string, ''
   setting :rss_description,            :boolean, false
   setting :rss_description_text,       :string, "<hr /><p><small>Original article written by %author% and published on <a href='%blog_url%'>%blog_name%</a> | <a href='%permalink_url%'>direct link to this article</a> | If you are reading this article anywhere other than on <a href='%blog_url%'>%blog_name%</a>, it has been illegally reproduced and without proper authorization.</small></p>"
   setting :permalink_format,           :string, '/%year%/%month%/%day%/%title%'
-  setting :robots,                     :string, 'User-agent: *\n Allow: Disallow: /admin'
+  setting :robots,                     :string, 'User-agent: *\nAllow: /\nDisallow: /admin\n'
   setting :humans,                     :string, "/* TEAM */\nYour title: Your name.\nSite: email, link to a contact form, etc.\nTwitter: your Twitter username.\n\n/* SITE */\nSoftware: Publify [http://publify.co] #{PUBLIFY_VERSION}"
 
   setting :index_categories,           :boolean, true # deprecated but still needed for backward compatibility
