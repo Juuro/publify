@@ -64,7 +64,7 @@ class Blog < ActiveRecord::Base
   setting :image_medium_size,          :integer, 600
 
   # SEO
-  setting :meta_description,           :string, ''
+  setting :meta_description,           :string, 'This is a personal blog about Juuros favourite activities. At first he is a passionate photgrapher who shares his newly learned skills on this blog. He\'s a critical Apple user who loves the company. Since several years he participates in mountainbiking races with a amateur approach. For a living Juuro is a frontent webdeveloper in Berlin, Germany.'
   setting :meta_keywords,              :string, ''
   setting :google_analytics,           :string, ''
   setting :feedburner_url,             :string, ''
