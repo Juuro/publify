@@ -38,6 +38,12 @@ module Publify
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
+
+    config.middleware.insert_before(Rack::Runtime, Rack::Rewrite) do
+      r301 %r{.*}, 'http://blog.i-wars.net$&', :if => Proc.new {|rack_env|
+        rack_env['SERVER_NAME'] != 'blog.i-wars.net'
+      }
+    end
   end
 
   # Load included libraries.

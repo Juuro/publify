@@ -39,6 +39,7 @@ gem "pg"
 gem "unicorn" # Change this to another web server if you want (ie. unicorn, passenger, puma...)
 gem "rails_12factor"
 gem 'rails', '~> 4.2.0'
+gem 'rack-rewrite', '~> 1.5.0'
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
