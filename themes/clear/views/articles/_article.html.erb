@@ -5,7 +5,7 @@
     <%#= render 'articles/meta', article: article %>
   </div>
 
-  <aside>
+  <aside class="article-meta">
     <div class="date">
       <span class="day_month"><%= l(article.published_at, :format => "%d.%m") %></span>
       <span class="year"><%= l(article.published_at, :format => "%Y") %></span>
