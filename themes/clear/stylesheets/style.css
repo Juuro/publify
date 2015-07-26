@@ -14,7 +14,7 @@
   margin-bottom: 0;
 }
 
-body {
+body, html {
   -webkit-font-smoothing: antialiased;
   font-size: 16px;
 }
