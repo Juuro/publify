@@ -15,5 +15,6 @@ Rails.application.config.assets.precompile += %w(
   publify_admin.css
   accounts.css
   bootstrap.css
+  user-styles.css
   coderay.css
 )
