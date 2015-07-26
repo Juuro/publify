@@ -13,6 +13,4 @@ $(document).ready(function() {
   });
 
   $.bigfoot();
-
-  console.log("bam!");
 });
