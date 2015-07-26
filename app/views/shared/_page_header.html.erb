@@ -21,6 +21,7 @@
 <%= meta_tag 'robots', 'noindex, follow' if stop_index_robots?(this_blog) %>
 <%= meta_tag 'google-site-verification', this_blog.google_verification unless this_blog.google_verification.blank?%>
 <meta name="generator" content="Publify <%=PUBLIFY_VERSION%>">
+<meta name="twitter:widgets:csp" content="on">
 <%= show_meta_keyword %>
 <link rel="EditURI" type="application/rsd+xml" title="RSD" href="<%= url_for :controller => '/xml', :action => 'rsd' %>">
 <%- if feed_atom %>
