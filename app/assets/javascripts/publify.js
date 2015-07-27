@@ -3,6 +3,7 @@
 //= require cookies
 //= require rails-timeago-all
 //= require bigfoot
+//= require bootstrap-sprockets
 //= require_self
 // Front javascript manifest
 
