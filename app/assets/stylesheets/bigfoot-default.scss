@@ -36,7 +36,7 @@ $popover-scroll-indicator-width:        0.625em !default;                       
 $popover-scroll-indicator-aspect-ratio: (15/12) !default;                        // The ratio of the height over the width of the scroll indicator
 $popover-scroll-indicator-opacity:      0.1 !default;                            // The active opacity of scroll indicators
 $popover-initial-transform-state:       scale(0.1) translateZ(0) !default;       // The inital transform state for the popover
-$popover-active-transform-state:        scale(1) translateZ(0) !default;         // The transform state for the popover once it is fully activated
+$popover-active-transform-state:        scale(1) translateZ(0) !default;         // The ororm state for the popover once it is fully activated
 
 // OPTIONAL ELEMENTS
 $popover-include-tooltip:               true !default;                           // Adds a tooltip pointing to the footnote button
@@ -398,7 +398,9 @@ $button-transition-properties:      background-color !default;
 
   // TRANSFORMS
   transform: $popover-initial-transform-state;
+  -webkit-transform: $popover-initial-transform-state;
   transform-origin: $popover-initial-transform-origin;
+  -webkit-transform-origin: $popover-initial-transform-origin;
 
   &.is-positioned-top {
     top: auto;
@@ -407,6 +409,7 @@ $button-transition-properties:      background-color !default;
 
   &.is-active {
     transform: $popover-active-transform-state;
+    -webkit-transform: $popover-active-transform-state;
     opacity: $popover-active-opacity;
   }
 
@@ -416,6 +419,7 @@ $button-transition-properties:      background-color !default;
     bottom: 0; top: auto;
     left: 0; right: auto;
     transform: translateY(100%);
+    -webkit-transform: translateY(100%);
 
     // DISPLAY AND SIZING
     width: 100%;
@@ -431,11 +435,13 @@ $button-transition-properties:      background-color !default;
 
     &.is-active {
       transform: translateY(0);
+      -webkit-transform: translateY(0);
     }
 
     .bigfoot-footnote__wrapper {
       margin: 0 0 0 50%;
       transform: translateX(-50%);
+      -webkit-transform: translateX(-50%);
       max-width: 100%;
     }
 
@@ -602,6 +608,7 @@ $button-transition-properties:      background-color !default;
   width: $popover-tooltip-size;
   height: $popover-tooltip-size;
   transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
 
   // BACKDROP
   background: $popover-tooltip-background;
