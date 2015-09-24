@@ -165,6 +165,7 @@ GEM
     minitest (5.5.1)
     multi_json (1.10.1)
     multipart-post (2.0.0)
+    mysql2 (0.4.1)
     naught (1.0.0)
     nenv (0.2.0)
     net-scp (1.2.0)
@@ -345,6 +346,7 @@ DEPENDENCIES
   kaminari
   kgio
   mini_magick (~> 3.8.1)
+  mysql2
   non-stupid-digest-assets
   pg
   pry-rails
@@ -368,3 +370,6 @@ DEPENDENCIES
   unicorn
   uuidtools (~> 2.1.1)
   web-console (~> 2.0)
+
+BUNDLED WITH
+   1.10.6
