@@ -9,7 +9,6 @@ db/*.sqlite*
 .*.swp
 .*.swo
 .DS_Store
-.rspec
 installer/rails_installer.yml
 /public/files
 /public/images/theme
@@ -25,10 +24,7 @@ nbproject
 public/cache/*
 .rbenv-version
 .ruby-version
-bin/
 .bundle/
 .sass-cache/
 /vendor/bundle
-!/themes/bootstrap
-!/themes/clear
 gems/

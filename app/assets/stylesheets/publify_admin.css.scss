@@ -1,8 +1,11 @@
 /*
- *= require bootstrap
  *= require administration_structure
- *= require jquery.ui.all
+ *= require jquery-ui
  *= require widearea
  *= require tagmanager
  *= require sidebar_admin
+ *= require datetimepicker
  */
+ 
+ @import "bootstrap-sprockets";
+ @import "bootstrap";

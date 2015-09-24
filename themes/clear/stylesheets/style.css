@@ -14,7 +14,7 @@
   margin-bottom: 0;
 }
 
-body {
+body, html {
   -webkit-font-smoothing: antialiased;
   font-size: 16px;
 }
@@ -34,6 +34,10 @@ h1 a:hover {
 
 .comments span {
   top: 3px;
+}
+
+blockquote {
+  font-style: italic;
 }
 
 p.subtitle {
@@ -118,39 +122,39 @@ img.centered, img.alignleft, img.alignright, img.thumb {
   line-height: 26px;
 }
 
-.hentry aside {
+.hentry .article-meta {
   color: #dddddd;
   position: absolute;
-  top: 69px;
+  top: 68px;
   left: -80px;
   width: 70px;
   margin-right: 10px;
   text-align: right;
 }
 
-.hentry aside .date {
+.hentry .article-meta .date {
   line-height: 19px;
 }
 
-.hentry aside .date .day_month {
+.hentry .article-meta .date .day_month {
   font-size: 28px;
   font-weight: lighter;
 }
 
-.hentry aside .date .year {
+.hentry .article-meta .date .year {
   font-size: 31px;
   font-weight: bold;
 }
 
-.hentry aside .comments {
+.hentry .article-meta .comments {
   text-align: center;
 }
 
-.hentry aside .comments a {
+.hentry .article-meta .comments a {
   color: #dddddd;
 }
 
-.hentry aside .comments a:hover {
+.hentry .article-meta .comments a:hover {
   color: #ff424f;
 }
 

@@ -11,6 +11,8 @@ class Blog < ActiveRecord::Base
 
   attr_accessor :custom_permalink
 
+  default_scope -> { order('id') }
+
   validate(:on => :create) { |blog|
     unless Blog.count.zero?
       blog.errors.add(:base, "There can only be one...")
@@ -40,6 +42,7 @@ class Blog < ActiveRecord::Base
   setting :text_filter,                :string, 'markdown smartypants'
   setting :comment_text_filter,        :string, 'markdown smartypants'
   setting :limit_article_display,      :integer, 10
+  setting :limit_archives_display,     :integer, 20
   setting :limit_rss_display,          :integer, 10
   setting :default_allow_pings,        :boolean, false
   setting :default_allow_comments,     :boolean, true
@@ -47,7 +50,7 @@ class Blog < ActiveRecord::Base
   setting :link_to_author,             :boolean, false
   setting :show_extended_on_rss,       :boolean, true # deprecated but still needed for backward compatibility
   setting :hide_extended_on_rss,       :boolean, false
-  setting :theme,                      :string, 'bootstrap'
+  setting :theme,                      :string, 'bootstrap-2'
   setting :plugin_avatar,              :string, ''
   setting :global_pings_disable,       :boolean, false
   setting :ping_urls,                  :string, "http://blogsearch.google.com/ping/RPC2\nhttp://rpc.technorati.com/rpc/ping\nhttp://ping.blo.gs/\nhttp://rpc.weblogs.com/RPC2"
@@ -112,20 +115,10 @@ class Blog < ActiveRecord::Base
 
   validate :permalink_has_identifier
 
-  def initialize(*args)
-    super
-    # Yes, this is weird - PDC
-    begin
-      self.settings ||= {}
-    rescue Exception => e
-      self.settings = {}
-    end
-  end
-
   # The default Blog. This is the lowest-numbered blog, almost always
   # id==1. This should be the only blog as well.
   def self.default
-    find(:first, :order => 'id')
+    first
   rescue
     logger.warn 'You have no blog installed.'
     nil
@@ -273,4 +266,3 @@ class Blog < ActiveRecord::Base
   end
 
 end
-

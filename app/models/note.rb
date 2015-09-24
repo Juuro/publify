@@ -18,7 +18,7 @@ class Note < Content
   after_create :set_permalink, :shorten_url
   before_create :create_guid
 
-  default_scope order("published_at DESC")
+  default_scope { order("published_at DESC") }
 
   TWITTER_FTP_URL_LENGTH = 19
   TWITTER_HTTP_URL_LENGTH = 20
@@ -35,16 +35,6 @@ class Note < Content
 
   def html_preprocess(field, html)
     PublifyApp::Textfilter::Twitterfilter.filtertext(nil,nil,html,nil).nofollowify
-  end
-
-  def initialize(*args)
-    super
-    # Yes, this is weird - PDC
-    begin
-      self.settings ||= {}
-    rescue Exception => e
-      self.settings = {}
-    end
   end
 
   def truncate(message, length)
@@ -76,8 +66,8 @@ class Note < Content
     twitter = Twitter::REST::Client.new do |config|
       config.consumer_key = Blog.default.twitter_consumer_key
       config.consumer_secret = Blog.default.twitter_consumer_secret
-      config.oauth_token = self.user.twitter_oauth_token
-      config.oauth_token_secret = self.user.twitter_oauth_token_secret
+      config.access_token = self.user.twitter_oauth_token
+      config.access_token_secret = self.user.twitter_oauth_token_secret
     end
 
     begin
