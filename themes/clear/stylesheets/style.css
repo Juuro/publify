@@ -159,9 +159,9 @@ img.centered, img.alignleft, img.alignright, img.thumb {
 }
 
 .article-separator {
-  width: 150px;
+  width: 50%;
   margin: 50px auto;
-  border-top: 6px solid #eeeeee;
+  border-top: 1px solid #eeeeee;
   display: block;
 }
 
