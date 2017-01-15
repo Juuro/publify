@@ -1,12 +1,12 @@
 require 'rails_helper'
 
-describe Admin::CacheController, :type => :controller do
+describe Admin::CacheController, type: :controller do
   render_views
   let!(:blog) { create(:blog) }
+  let(:admin) { create(:user, :as_admin) }
 
-  before(:each) do
-    admin = create(:user, :as_admin)
-    request.session = { user: admin.id }
+  before do
+    sign_in admin
   end
 
   describe 'show' do

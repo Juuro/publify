@@ -4,22 +4,21 @@ require 'timeout'
 class Comment < Feedback
   belongs_to :user
   content_fields :body
-  validates_presence_of :author, :body
+  validates :author, :body, presence: true
 
   attr_accessor :referrer, :permalink
 
-  scope :spam, lambda { where(state: 'spam') }
-  scope :not_spam, lambda { where("state != 'spam'")}
-  scope :presumed_spam, lambda { where(state: 'presumed_spam')}
-  scope :presumed_ham, lambda { where(state: 'presumed_ham')}
-  scope :ham, lambda { where(state: 'ham')}
-  scope :unconfirmed, lambda { where("state in (?, ?)", "presumed_spam", "presumed_ham")}
-  scope :last_published, lambda { where(published:true).limit(5).order('created_at DESC') }
+  scope :spam, -> { where(state: 'spam') }
+  scope :not_spam, -> { where("state != 'spam'") }
+  scope :presumed_spam, -> { where(state: 'presumed_spam') }
+  scope :presumed_ham, -> { where(state: 'presumed_ham') }
+  scope :ham, -> { where(state: 'ham') }
+  scope :unconfirmed, -> { where(state: %w(presumed_spam presumed_ham)) }
+
+  scope :last_published, -> { published.limit(5).order('created_at DESC') }
 
   def notify_user_via_email(user)
-    if user.notify_via_email?
-      EmailNotify.send_comment(self, user)
-    end
+    EmailNotify.send_comment(self, user) if user.notify_via_email?
   end
 
   def interested_users
@@ -27,7 +26,7 @@ class Comment < Feedback
   end
 
   def default_text_filter
-    blog.comment_text_filter.to_text_filter
+    TextFilter.find_or_default(blog.comment_text_filter)
   end
 
   def feed_title
@@ -38,7 +37,7 @@ class Comment < Feedback
 
   def article_allows_feedback?
     return true if article.allow_comments?
-    errors.add(:article, "Article is not open to comments")
+    errors.add(:article, 'Article is not open to comments')
     false
   end
 

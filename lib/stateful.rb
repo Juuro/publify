@@ -8,7 +8,7 @@ module Stateful
       self.class.to_s.demodulize
     end
 
-    def exit_hook(target_state)
+    def exit_hook(_target_state)
       ::Rails.logger.debug("#{model} leaving state #{self}")
     end
 
@@ -16,21 +16,16 @@ module Stateful
       ::Rails.logger.debug("#{model} entering state #{self}")
     end
 
-
     def method_missing(predicate, *args)
       if predicate.to_s.last == '?'
         self.class.to_s.demodulize.underscore == predicate.to_s.chop
       else
-        if block_given?
-          super(predicate, *args) { |*block_args| yield(*block_args) }
-        else
-          super(predicate, *args)
-        end
+        super
       end
     end
 
-    def ==(other_state)
-      self.class == other_state.class
+    def ==(other)
+      self.class == other.class
     end
 
     def hash
@@ -38,6 +33,7 @@ module Stateful
     end
 
     private
+
     attr_reader :model
   end
 
@@ -49,20 +45,19 @@ module Stateful
     def has_state(field, options = {})
       options.assert_valid_keys(:valid_states, :handles, :initial_state)
 
-      unless states = options[:valid_states]
-        raise "You must specify at least one state"
+      unless (states = options[:valid_states])
+        raise 'You must specify at least one state'
       end
-      states        = states.collect &:to_sym
 
-      delegations   = Set.new(options[:handles]) + states.collect { |value| "#{value}?" }
-
+      states = states.map(&:to_sym)
+      delegations = Set.new(options[:handles]) + states.map { |value| "#{value}?" }
       initial_state = options[:initial_state] || states.first
 
       state_writer_method(field, states, initial_state)
       state_reader_method(field, states, initial_state)
 
       delegations.each do |value|
-        delegate value, :to => field
+        delegate value, to: field
       end
     end
 
@@ -81,7 +76,7 @@ module Stateful
       end_meth
     end
 
-    def state_writer_method(name, states, initial_state)
+    def state_writer_method(name, states, _initial_state)
       module_eval <<-end_meth
         def #{name}=(state)
           case state

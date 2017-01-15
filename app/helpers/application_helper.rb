@@ -3,17 +3,18 @@
 require 'digest/sha1'
 
 module ApplicationHelper
+  include BlogHelper
+
   # Need to rewrite this one, quick hack to test my changes.
-  def page_title
-    @page_title
-  end
+  attr_reader :page_title
 
   def render_sidebars(*sidebars)
-    (sidebars.blank? ? Sidebar.order(:active_position) : sidebars).map do |sb|
+    rendered_sidebars = (sidebars.blank? ? Sidebar.order(:active_position) : sidebars).map do |sb|
       @sidebar = sb
       sb.parse_request(content_array, params)
       render_sidebar(sb)
-    end.join
+    end
+    safe_join rendered_sidebars
   rescue => e
     logger.error e
     logger.error e.backtrace.join("\n")
@@ -21,49 +22,23 @@ module ApplicationHelper
   end
 
   def render_sidebar(sidebar)
-    if sidebar.view_root
-      render_deprecated_sidebar_view_in_view_root sidebar
-    else
-      render_to_string(partial: sidebar.content_partial, locals: sidebar.to_locals_hash, layout: false)
-    end
+    render_to_string(partial: sidebar.content_partial, locals: sidebar.to_locals_hash, layout: false)
   end
 
-  def render_deprecated_sidebar_view_in_view_root(sidebar)
-    logger.warn "Sidebar#view_root is deprecated. Place your _content.html.erb in views/sidebar_name/ in your plugin's folder"
-    # Allow themes to override sidebar views
-    view_root = File.expand_path(sidebar.view_root)
-    rails_root = File.expand_path(::Rails.root.to_s)
-    if view_root =~ /^#{Regexp.escape(rails_root)}/
-      new_root = view_root[rails_root.size..-1]
-      new_root.sub! %r{^/?vendor/}, ""
-      new_root.sub! %r{/views}, ""
-      new_root = File.join(this_blog.current_theme.path, "views", new_root)
-      view_root = new_root if File.exists?(File.join(new_root, "content.rhtml"))
-    end
-    render_to_string(:file => "#{view_root}/content.rhtml", :locals => sidebar.to_locals_hash, :layout => false)
-  end
-
-  def articles?
-    not Article.first.nil?
-  end
-
-  def trackbacks?
-    not Trackback.first.nil?
-  end
-
-  def comments?
-    not Comment.first.nil?
+  def themeable_stylesheet_link_tag(name)
+    src = this_blog.current_theme.path + "/stylesheets/#{name}.css"
+    stylesheet_link_tag "/stylesheets/theme/#{name}.css" if File.exist? src
   end
 
   def render_to_string(*args, &block)
     controller.send(:render_to_string, *args, &block)
   end
 
-  def link_to_permalink(item, title, anchor=nil, style=nil, nofollow=nil, only_path=false)
+  def link_to_permalink(item, title, anchor = nil, style = nil, nofollow = nil, only_path = false)
     options = {}
     options[:class] = style if style
-    options[:rel] = "nofollow" if nofollow
-    link_to title, item.permalink_url(anchor,only_path), options
+    options[:rel] = 'nofollow' if nofollow
+    link_to title, item.permalink_url(anchor, only_path), options
   end
 
   def avatar_tag(options = {})
@@ -77,12 +52,12 @@ module ApplicationHelper
   end
 
   def meta_tag(name, value)
-    tag :meta, :name => name, :content => value unless value.blank?
+    tag :meta, name: name, content: value unless value.blank?
   end
 
   def markup_help_popup(markup, text)
-    if markup and markup.commenthelp.size > 1
-      "<a href=\"#{url_for :controller => 'articles', :action => 'markup_help', :id => markup.id}\" onclick=\"return popup(this, 'Publify Markup Help')\">#{text}</a>"
+    if markup && markup.commenthelp.size > 1
+      link_to text, url_for(controller: 'articles', action: 'markup_help', id: markup.id), onclick: "return popup(this, 'Publify Markup Help')"
     else
       ''
     end
@@ -93,7 +68,7 @@ module ApplicationHelper
     tag = []
     tag << %{ onmouseover="if (getCookie('publify_user_profile') == 'admin') { $('#{admin_id}').show(); }" }
     tag << %{ onmouseout="$('#{admin_id}').hide();" }
-    tag.join " "
+    safe_join(tag, ' ')
   end
 
   def feed_title
@@ -106,11 +81,11 @@ module ApplicationHelper
     end
   end
 
-  def html(content, what = :all, deprecated = false)
+  def html(content, what = :all, _deprecated = false)
     content.html(what)
   end
 
-  def display_user_avatar(user, size='avatar', klass='alignleft')
+  def display_user_avatar(user, size = 'avatar', klass = 'alignleft')
     if user.resource.present?
       avatar_path = case size
                     when 'thumb'
@@ -132,10 +107,9 @@ module ApplicationHelper
   end
 
   def author_picture(status)
-    return if status.user.twitter_profile_image.nil? or status.user.twitter_profile_image.empty?
-    return if status.twitter_id.nil? or status.twitter_id.empty?
+    return if status.user.twitter_profile_image.blank?
 
-    image_tag(status.user.twitter_profile_image , class: "alignleft", alt: status.user.nickname)
+    image_tag(status.user.twitter_profile_image, class: 'alignleft', alt: status.user.nickname)
   end
 
   def google_analytics
@@ -153,17 +127,13 @@ module ApplicationHelper
     end
   end
 
-  def use_canonical
-    "<link rel='canonical' href='#{this_blog.base_url + request.fullpath}' />".html_safe
-  end
-
   def page_header_includes
-    content_array.collect { |c| c.whiteboard }.collect do |w|
-      w.select {|k,v| k =~ /^page_header_/}.collect do |_,v|
+    content_array.map(&:whiteboard).map do |w|
+      w.select { |k, _v| k =~ /^page_header_/ }.map do |_, v|
         v = v.chomp
         # trim the same number of spaces from the beginning of each line
         # this way plugins can indent nicely without making ugly source output
-        spaces = /\A[ \t]*/.match(v)[0].gsub(/\t/, "  ")
+        spaces = /\A[ \t]*/.match(v)[0].gsub(/\t/, '  ')
         v.gsub!(/^#{spaces}/, '  ') # add 2 spaces to line up with the assumed position of the surrounding tags
       end
     end.flatten.uniq.join("\n")
@@ -190,7 +160,7 @@ module ApplicationHelper
   end
 
   def display_date(date)
-    l(date, :format => this_blog.date_format)
+    l(date, format: this_blog.date_format)
   end
 
   def display_time(time)
@@ -210,21 +180,17 @@ module ApplicationHelper
     meta_tag 'keywords', @keywords unless @keywords.blank?
   end
 
-  def this_blog
-    @blog ||= Blog.default
-  end
-
   def stop_index_robots?(blog)
     stop = (params[:year].present? || params[:page].present?)
-    stop = blog.unindex_tags if controller_name == "tags"
-    stop = blog.unindex_categories if controller_name == "categories"
+    stop = blog.unindex_tags if controller_name == 'tags'
+    stop = blog.unindex_categories if controller_name == 'categories'
     stop
   end
 
   def get_reply_context_url(reply)
     link_to(reply['user']['name'], reply['user']['entities']['url']['urls'][0]['expanded_url'])
   rescue
-     link_to(reply['user']['name'], "https://twitter.com/#{reply['user']['name']}")
+    link_to(reply['user']['name'], "https://twitter.com/#{reply['user']['name']}")
   end
 
   def get_reply_context_twitter_link(reply)
@@ -237,27 +203,44 @@ module ApplicationHelper
   def feed_for(type)
     if params[:action] == 'search'
       url_for(only_path: false, format: type, q: params[:q])
-    elsif not @article.nil?
+    elsif !@article.nil?
       @article.feed_url(type)
-    elsif not @auto_discovery_url_atom.nil?
+    elsif !@auto_discovery_url_atom.nil?
       instance_variable_get("@auto_discovery_url_#{type}")
     end
   end
 
   # fetches appropriate html content for RSS and ATOM feeds. Checks for:
   # - article being password protected
-  # - hiding extended content on RSS. In this case if there is an excerpt we show the excerpt, or else we show the body
+  # - hiding extended content on RSS. In this case if there is an excerpt we
+  #   show the excerpt, or else we show the body
   def fetch_html_content_for_feeds(item, this_blog)
     if item.password_protected?
       "<p>This article is password protected. Please <a href='#{item.permalink_url}'>fill in your password</a> to read it</p>"
     elsif this_blog.hide_extended_on_rss
-      if item.excerpt? and item.excerpt.length>0 then
+      if item.excerpt? && !item.excerpt.empty?
         item.excerpt
       else
         html(item, :body)
       end
     else
       html(item, :all)
+    end
+  end
+
+  def nofollowify_links(string)
+    if this_blog.dofollowify
+      string
+    else
+      string.gsub(/<a(.*?)>/i, '<a\1 rel="nofollow">')
+    end
+  end
+
+  def nofollowified_link_to(text, url)
+    if this_blog.dofollowify
+      link_to(text, url)
+    else
+      link_to(text, url, rel: 'nofollow')
     end
   end
 end

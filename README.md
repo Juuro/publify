@@ -2,22 +2,20 @@
 
 **The Ruby on Rails publishing software formerly known as Typo**
 
-### Download
-
-You can download Publify [stable release](http://publify.co/stable.tgz) or [clone Publify
-repository](https://github.com/publify/publify.git).
-
-[![Build Status](https://travis-ci.org/publify/publify.png)](https://travis-ci.org/publify/publify)
+[![Build Status](https://travis-ci.org/publify/publify.png?branch=master)](https://travis-ci.org/publify/publify)
 [![Code Climate](https://codeclimate.com/github/publify/publify.png)](https://codeclimate.com/github/publify/publify)
 [![Dependency Status](https://gemnasium.com/publify/publify.png)](https://gemnasium.com/publify/publify)
 
 ## What's Publify?
 
-Publify is a simple but full featured web publishing software. It's built around a blogging engine and a small message system connected to Twitter.
+Publify is a simple but full featured web publishing software. It's built
+around a blogging engine and a small message system connected to Twitter.
 
-Publify follows the principles of the IndieWeb, which are self hosting your Web site, and Publish On your Own Site, Syndicate Everywhere.
+Publify follows the principles of the IndieWeb, which are self hosting your Web
+site, and Publish On your Own Site, Syndicate Everywhere.
 
-Publify has been around since 2004 and is the oldest Ruby on Rails open source project alive.
+Publify has been around since 2004 and is the oldest Ruby on Rails open source
+project alive.
 
 ## Features
 
@@ -27,7 +25,9 @@ Publify has been around since 2004 and is the oldest Ruby on Rails open source p
 - A widgets system and a plugin API
 - Custom themes
 - Advanced SEO capabilities
-- Multilingual : Publify is (more or less) translated in English, French, German, Danish, Norwegian, Japanese, Hebrew, Simplified Chinese, Mexican Spanish, Italian, Lithuanian, Dutch, Polish, Romanian…
+- Multilingual : Publify is (more or less) translated in English, French,
+  German, Danish, Norwegian, Japanese, Hebrew, Simplified Chinese, Mexican
+  Spanish, Italian, Lithuanian, Dutch, Polish, Romanian…
 
 ## Demo site
 
@@ -41,13 +41,29 @@ are:
 
 The demo is reset every 2 hours.
 
-## Install Publify  locally
+## Install
+
+### Download
+
+You can download the latest
+Publify [stable release (8.3.3)](https://github.com/publify/publify/archive/v8.3.3.tar.gz)
+
+If you want to run the master branch, you can [clone the Publify
+repository](https://github.com/publify/publify.git). However, random things may
+be broken there at any time, so tread carefully!
+
+**Running the master branch in production is not recommended!**
+
+### Install Publify locally
 
 To install Publify you need the following:
 
--   Ruby 2.0, 2.1 or 2.2
--   Ruby On Rails 4.2.0
--   A database engine, MySQL, PgSQL or SQLite3
+- CRuby (MRI) 2.1, 2.2 or 2.3
+- Ruby on Rails 4.2.x
+- A database engine, MySQL, PgSQL or SQLite3
+- A compatible JavaScript installation for asset compilation. See [the execjs
+  readme](https://github.com/sstephenson/execjs#readme) for details.
+- ImageMagick (used by mini_magick).
 
 1.  Unzip Publify archive
 2.  Rename database.yml.yourEngine as database.yml
@@ -62,18 +78,14 @@ $ rake assets:precompile
 $ rails server
 ```
 
-You can now launch you browser and access to 127.0.0.1:3000.
+You can now launch you browser and access 127.0.0.1:3000.
 
-
-
-## Install Publify on Heroku
+### Install Publify on Heroku
 
 In order to install Publify on Heroku, you’ll need to do some minor tweaks.
 
-### Storage
-
-You need to setup Amazon S3 storage to be able to upload files on your
-blog. Set Heroku config vars.
+First of all, you need to setup Amazon S3 storage to be able to upload files on
+your blog. Set Heroku config vars.
 
 ```yaml
 heroku config:set provider=AWS
@@ -97,8 +109,9 @@ heroku config:set HEROKU=true
 
 Push the repository to Heroku.
 
-When deploying for the first time, Heroku will automatically add a Database plugin to your instance and links it to the application.
-After the first deployment, don't forget to run the database migration and seed.
+When deploying for the first time, Heroku will automatically add a Database
+plugin to your instance and links it to the application. After the first
+deployment, don't forget to run the database migration and seed.
 
 ```bash
 heroku run rake db:migrate db:seed
@@ -120,7 +133,7 @@ heroku restart
 - [Publify on Twitter](https://twitter.com/getpublify)
 - IRC: \#publify on irc.freenode.net
 
-### Maintainers
+## Maintainers
 
 This is a list of Publify maintainers. If you have committed, please add
 your name and contact details to the list.

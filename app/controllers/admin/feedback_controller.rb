@@ -1,19 +1,17 @@
 class Admin::FeedbackController < Admin::BaseController
   cache_sweeper :blog_sweeper
-  Only_domain = ['unapproved', 'presumed_ham', 'presumed_spam', 'ham', 'spam']
+  ONLY_DOMAIN = %w(unapproved presumed_ham presumed_spam ham spam).freeze
 
   def index
-    scoped_feedback = Feedback
+    scoped_feedback = this_blog.feedback
 
-    if params[:only].present? 
-      @only_param = Only_domain.dup.delete(params[:only])
+    if params[:only].present?
+      @only_param = ONLY_DOMAIN.dup.delete(params[:only])
       scoped_feedback = scoped_feedback.send(@only_param) if @only_param
     end
 
-    if params[:page].blank? || params[:page] == "0"
-      params.delete(:page)
-    end
-    
+    params.delete(:page) if params[:page].blank? || params[:page] == '0'
+
     @feedback = scoped_feedback.paginated(params[:page], this_blog.admin_display_elements)
   end
 
@@ -21,12 +19,8 @@ class Admin::FeedbackController < Admin::BaseController
     @record = Feedback.find params[:id]
 
     unless @record.article.user_id == current_user.id
-      unless current_user.admin?
-        return redirect_to controller: 'admin/feedback', action: :index
-      end
+      return redirect_to admin_feedback_index_url unless current_user.admin?
     end
-
-    return(render 'admin/shared/destroy') unless request.post?
 
     begin
       @record.destroy
@@ -39,23 +33,23 @@ class Admin::FeedbackController < Admin::BaseController
 
   def create
     @article = Article.find(params[:article_id])
-    @comment = @article.comments.build(params[:comment].permit!)
+    @comment = @article.comments.build(comment_params)
     @comment.user_id = current_user.id
 
-    if request.post? and @comment.save
+    if request.post? && @comment.save
       # We should probably wave a spam filter over this, but for now, just mark it as published.
       @comment.mark_as_ham
       @comment.save!
       flash[:success] = I18n.t('admin.feedback.create.success')
     end
-    redirect_to :action => 'article', :id => @article.id
+    redirect_to action: 'article', id: @article.id
   end
 
   def edit
     @comment = Comment.find(params[:id])
     @article = @comment.article
     unless @article.access_by? current_user
-      redirect_to :action => 'index'
+      redirect_to admin_feedback_index_url
       return
     end
   end
@@ -63,11 +57,11 @@ class Admin::FeedbackController < Admin::BaseController
   def update
     comment = Comment.find(params[:id])
     unless comment.article.access_by? current_user
-      redirect_to :action => 'index'
+      redirect_to admin_feedback_index_url
       return
     end
-    comment.attributes = params[:comment].permit!
-    if request.post? and comment.save
+    comment.attributes = comment_params
+    if request.post? && comment.save
       flash[:success] = I18n.t('admin.feedback.update.success')
       redirect_to action: 'article', id: comment.article.id
     else
@@ -76,16 +70,11 @@ class Admin::FeedbackController < Admin::BaseController
   end
 
   def article
-    @article = Article.find(params[:id])
-    if params[:ham] && params[:spam].blank?
-      @feedback = @article.comments.ham
-    end
-    if params[:spam] && params[:ham].blank?
-      @feedback = @article.comments.spam
-    end
+    @article = this_blog.articles.find(params[:id])
+    @feedback = @article.comments.ham if params[:ham] && params[:spam].blank?
+    @feedback = @article.comments.spam if params[:spam] && params[:ham].blank?
     @feedback ||= @article.comments
   end
-
 
   def change_state
     return unless request.xhr?
@@ -94,26 +83,23 @@ class Admin::FeedbackController < Admin::BaseController
     template = @feedback.change_state!
 
     respond_to do |format|
-      
       if params[:context] != 'listing'
         @comments = Comment.last_published
-        page.replace_html('commentList', :partial => 'admin/dashboard/comment')
+        page.replace_html('commentList', partial: 'admin/dashboard/comment')
+      elsif template == 'ham'
+        format.js { render 'ham' }
       else
-        if template == "ham"
-          format.js { render 'ham' }
-        else
-          format.js { render 'spam'}
-        end        
+        format.js { render 'spam' }
       end
     end
   end
 
   def bulkops
-    ids = (params[:feedback_check]||{}).keys.map(&:to_i)
+    ids = (params[:feedback_check] || {}).keys.map(&:to_i)
     items = Feedback.find(ids)
     @unexpired = true
 
-    bulkop = (params[:bulkop_top]||{}).empty? ? params[:bulkop_bottom] : params[:bulkop_top]
+    bulkop = (params[:bulkop_top] || {}).empty? ? params[:bulkop_bottom] : params[:bulkop_top]
 
     case bulkop
     when 'Delete Checked Items'
@@ -123,17 +109,16 @@ class Admin::FeedbackController < Admin::BaseController
       end
       flash[:success] = I18n.t('admin.feedback.bulkops.success_deleted', count: count)
 
-      items.each do |i|
-        i.invalidates_cache? or next
+      if items.any(&:invalidates_cache?)
         flush_cache
         return
       end
     when 'Mark Checked Items as Ham'
       update_feedback(items, :mark_as_ham!)
-      flash[:success] =  I18n.t('admin.feedback.bulkops.success_mark_as_ham', count: ids.size)
+      flash[:success] = I18n.t('admin.feedback.bulkops.success_mark_as_ham', count: ids.size)
     when 'Mark Checked Items as Spam'
       update_feedback(items, :mark_as_spam!)
-      flash[:success] =  I18n.t('admin.feedback.bulkops.success_mark_as_spam', count: ids.size)
+      flash[:success] = I18n.t('admin.feedback.bulkops.success_mark_as_spam', count: ids.size)
     when 'Confirm Classification of Checked Items'
       update_feedback(items, :confirm_classification!)
       flash[:success] = I18n.t('admin.feedback.bulkops.success_classification', count: ids.size)
@@ -153,7 +138,11 @@ class Admin::FeedbackController < Admin::BaseController
     end
   end
 
-  protected
+  private
+
+  def comment_params
+    params.require(:comment).permit(:author, :email, :url, :body)
+  end
 
   def update_feedback(items, method)
     items.each do |value|
@@ -167,5 +156,4 @@ class Admin::FeedbackController < Admin::BaseController
     @unexpired = false
     PageCache.sweep_all
   end
-
 end

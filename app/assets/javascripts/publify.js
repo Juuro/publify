@@ -1,10 +1,17 @@
+// Front-end javascript manifest
+//
 //= require jquery
-//= require jquery_ujs
 //= require cookies
 //= require rails-timeago-all
+//= require set-timeago-lang
+//= require jquery_ujs
+//= require lightbox
+//= require observe
+//
+//= require_self
+
 //= require bigfoot
 //= require bootstrap-sprockets
-//= require_self
 // Front javascript manifest
 
 $(document).ready(function() {

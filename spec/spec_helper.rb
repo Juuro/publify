@@ -16,7 +16,7 @@
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 #
 # Code climate for coverage reporting into Travis CI
-require "codeclimate-test-reporter"
+require 'codeclimate-test-reporter'
 CodeClimate::TestReporter.start
 
 RSpec.configure do |config|
@@ -75,7 +75,6 @@ RSpec.configure do |config|
 
     # Prevents you from mocking or stubbing a method that does not exist on
     # a real object. This is generally recommended.
-    # TODO: Enable this and fix the resulting problems
-    # mocks.verify_partial_doubles = true
+    mocks.verify_partial_doubles = true
   end
 end

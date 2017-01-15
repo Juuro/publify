@@ -1,116 +1,98 @@
 require 'rails_helper'
 
-describe Admin::UsersController, "rough port of the old functional test", :type => :controller do
+describe Admin::UsersController, type: :controller do
+  let!(:blog) { create :blog }
+  let(:admin) { create(:user, :as_admin) }
+  let(:publisher) { create(:user, :as_publisher) }
+  let(:contributor) { create(:user, :as_contributor) }
+
   render_views
 
-  describe ' when you are admin' do
-    before(:each) do
-      create(:blog)
-      @admin = create(:user, :profile => create(:profile_admin, :label => Profile::ADMIN))
-      request.session = { :user => @admin.id }
+  describe '#index' do
+    let(:user) { admin }
+
+    before do
+      sign_in user
     end
 
-    it "test_index" do
+    it 'renders a list of users' do
       get :index
       assert_template 'index'
       expect(assigns(:users)).not_to be_nil
     end
 
-    it "test_new" do
-      get :new
-      assert_template 'new'
+    describe 'when you are not admin' do
+      let(:user) { publisher }
 
-      post :new, :user => { :login => 'errand', :email => 'corey@test.com', :password => 'testpass', :password_confirmation => 'testpass', :profile_id => 1, :nickname => 'fooo', :firstname => 'bar' }
-      expect(response).to redirect_to(:action => 'index')
-    end
-
-    describe '#EDIT action' do
-
-      describe 'with POST request' do
-        it 'should redirect to index' do
-          post :edit, :id => @admin.id, :user => { :login => 'errand',
-                                                   :email => 'corey@test.com', :password => 'testpass',
-                                                   :password_confirmation => 'testpass' }
-          expect(response).to redirect_to(:action => 'index')
-        end
-      end
-
-      describe 'with GET request' do
-        shared_examples_for 'edit admin render' do
-          it 'should render template edit' do
-            assert_template 'edit'
-          end
-
-          it 'should assigns tobi user' do
-            assert assigns(:user).valid?
-            expect(assigns(:user)).to eq(@admin) 
-          end
-        end
-        describe 'with no id params' do
-          before do
-            get :edit
-          end
-          it_should_behave_like 'edit admin render'
-        end
-
-        describe 'with id params' do
-          before do
-            get :edit, :id => @admin.id
-          end
-          it_should_behave_like 'edit admin render'
-        end
-
-      end
-    end
-
-    describe "#destroy" do
-      let(:user) { create(:user) }
-
-      context "GET" do
-        it "shows the user to be destroyed" do
-          id = user.id
-          get :destroy, id: id
-          assert_template 'destroy'
-          assert assigns(:record).valid?
-          expect { User.find(id) }.to_not raise_error
-        end
+      it "don't see the list of user" do
+        get :index
+        expect(response).to redirect_to(controller: '/admin/dashboard', action: 'index')
       end
     end
   end
 
-  describe 'when you are not admin' do
-
-    before :each do
-      create(:blog)
-      user = create(:user)
-      session[:user] = user.id
+  describe '#new' do
+    before do
+      sign_in admin
     end
 
-    it "don't see the list of user" do
-      get :index
-      expect(response).to redirect_to(:controller => "/admin/dashboard", :action => "index")
+    it 'renders the new template' do
+      get :new
+      assert_template 'new'
+    end
+  end
+
+  describe '#create' do
+    before do
+      sign_in admin
+      post :create, user: { login: 'errand', email: 'corey@test.com',
+                            password: 'testpass',
+                            password_confirmation: 'testpass',
+                            profile: User::CONTRIBUTOR,
+                            nickname: 'fooo', firstname: 'bar' }
     end
 
-    describe 'EDIT Action' do
+    it 'redirects to the index' do
+      expect(response).to redirect_to(action: 'index')
+    end
+  end
 
-      describe 'try update another user' do
-        before do
-          @admin_profile = create(:profile_admin)
-          @administrator = create(:user, :profile => @admin_profile)
-          contributor = create(:profile_contributor)
-          post :edit,
-            :id => @administrator.id,
-            :profile_id => contributor.id
-        end
+  describe '#update' do
+    let(:user) { admin }
 
-        it 'should redirect to login' do
-          expect(response).to redirect_to(:controller => "/admin/dashboard", :action => "index")
-        end
+    before(:each) do
+      sign_in user
+    end
 
-        it 'should not change user profile' do
-          u = @administrator.reload
-          expect(u.profile_id).to eq(@admin_profile.id)
-        end
+    it 'should redirect to index' do
+      post :update, id: contributor.id, user: { login: 'errand',
+                                                email: 'corey@test.com', password: 'testpass',
+                                                password_confirmation: 'testpass' }
+      expect(response).to redirect_to(action: 'index')
+    end
+
+    it 'skips blank passwords' do
+      post :update, id: contributor.id, user: { login: 'errand',
+                                                password: '', password_confirmation: '' }
+      expect(response).to redirect_to(action: 'index')
+    end
+
+    describe 'when you are not admin' do
+      let(:user) { publisher }
+
+      before do
+        post :update,
+             id: contributor.id,
+             user: { profile: User::PUBLISHER }
+      end
+
+      it 'should redirect to login' do
+        expect(response).to redirect_to(controller: '/admin/dashboard', action: 'index')
+      end
+
+      it 'should not change user profile' do
+        u = contributor.reload
+        expect(u.profile).to eq User::CONTRIBUTOR
       end
     end
   end

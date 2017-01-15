@@ -7,9 +7,8 @@
     <%= yield :page_title %>
   </title>
   <meta http-equiv="imagetoolbar" content="no">
-  <%= stylesheet_link_tag "accounts", "bootstrap" %>
-  <%= javascript_include_tag 'publify_admin' %>
-  
+  <%= javascript_include_tag 'publify_admin', async: Rails.env.production? %>
+  <%= stylesheet_link_tag "accounts" %>
 </head>
 <body class="tk-raleway">
   <div class="container">
@@ -24,9 +23,9 @@
             <%= yield %>
           </div>
         </div>
-        <%- if content_for?(:account_links) %>
+        <% if content_for?(:account_links) %>
             <%= yield :account_links %>
-        <%- end %>
+        <% end %>
       </div>
     </div>
   </div>

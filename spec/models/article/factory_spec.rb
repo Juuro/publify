@@ -1,27 +1,30 @@
 require 'rails_helper'
 
-describe Article::Builder, :type => :model do
-  let!(:blog) { FactoryGirl.build_stubbed(:blog) }
-  let(:user) { FactoryGirl.create(:user) }
-  let(:factory) {Article::Factory.new(blog, user)}
+describe Article::Builder, type: :model do
+  let(:blog) { create(:blog) }
+  let(:user) { create(:user) }
+  let(:factory) { Article::Factory.new(blog, user) }
 
-  describe "#default" do
+  describe '#default' do
     let(:new_article) { factory.default }
 
     it { expect(new_article.allow_comments).to eq(blog.default_allow_comments) }
     it { expect(new_article.allow_pings).to eq(blog.default_allow_pings) }
     it { expect(new_article.text_filter).to eq(user.default_text_filter) }
     it { expect(new_article.published).to be_truthy }
+
+    it 'does not attempt to validate the article' do
+      expect(new_article.errors).to be_empty
+    end
   end
 
-  describe "#get_or_build" do
-
-    context "with an existing article" do
-      let(:article) { FactoryGirl.create(:article) }
+  describe '#get_or_build' do
+    context 'with an existing article' do
+      let(:article) { create(:article, blog: blog) }
       it { expect(factory.get_or_build_from(article.id)).to eq(article) }
     end
 
-    context "with nil given" do
+    context 'with nil given' do
       let(:new_article) { factory.get_or_build_from(nil) }
 
       it { expect(new_article).to be_kind_of(Article) }
@@ -33,52 +36,87 @@ describe Article::Builder, :type => :model do
     end
   end
 
-  describe "#requested_article" do
-    it "call find_by_permalink" do
-      params = {something: 'truc'}
+  describe '#requested_article' do
+    let(:blog) { build(:blog) }
+    let(:user) { build(:user) }
+
+    it 'call find_by_permalink' do
+      params = { something: 'truc' }
       expect(Article).to receive(:find_by_permalink).with(params)
-      expect(factory.requested_article(params)).to be_nil
+      factory.requested_article(params)
     end
 
-    it "set title params with article_id params" do
-      params = {article_id: 12}
-      expected_params = params.merge({title: 12})
+    it 'set title params with article_id params' do
+      params = { article_id: 12 }
+      expected_params = params.merge(title: 12)
       expect(Article).to receive(:find_by_permalink).with(expected_params)
-      expect(factory.requested_article(params)).to be_nil
+      factory.requested_article(params)
     end
 
-    it "dont set title params with article_id when title already set" do
-      params = {article_id: 12, title: 'Beautiful'}
+    it 'dont set title params with article_id when title already set' do
+      params = { article_id: 12, title: 'Beautiful' }
       expected_params = params
       expect(Article).to receive(:find_by_permalink).with(expected_params)
-      expect(factory.requested_article(params)).to be_nil
+      factory.requested_article(params)
     end
   end
 
-  describe "#match_permalink_format" do
-    let!(:article) { create(:article, permalink: 'a-title') }
+  describe '#extract_params' do
+    let(:blog) { build(:blog) }
+    let(:user) { build(:user) }
 
-    context "with one more element on url than on format" do
+    context 'with one more element on url than on format' do
       let(:url) { '/one/two/three' }
       let(:format) { '/year/title' }
 
-      it { expect(factory.match_permalink_format(url, format)).to be_nil }
+      it 'does not match' do
+        expect(factory.extract_params(url, format)).to be_nil
+      end
     end
 
-    context "with hard part in format, return nil if url doesnt match" do
+    context 'with hard part in format, return nil if url doesnt match' do
       let(:url) { '/one/two' }
       let(:format) { '/three/two' }
 
-      it { expect(factory.match_permalink_format(url, format)).to be_nil }
+      it 'does not match' do
+        expect(factory.extract_params(url, format)).to be_nil
+      end
     end
 
-    context "with format and matching article" do
+    context 'with format without fixed parts and matching url' do
       let(:url) { 'a-title' }
       let(:format) { '/%title%' }
 
-      it { expect(factory.match_permalink_format(url, format)).to eq(article) }
+      it 'matches' do
+        expect(factory.extract_params(url, format)).to eq(title: 'a-title')
+      end
     end
 
-  end
+    context 'with multi-part format and matching url' do
+      let(:url) { 'foo/a-title' }
+      let(:format) { '/foo/%title%' }
 
+      it 'does not match' do
+        expect(factory.extract_params(url, format)).to eq(title: 'a-title')
+      end
+    end
+
+    context 'with a url containing required fixed parts' do
+      let(:url) { 'fooa-titlebar' }
+      let(:format) { '/foo%title%bar' }
+
+      it 'matches' do
+        expect(factory.extract_params(url, format)).to eq(title: 'a-title')
+      end
+    end
+
+    context 'with a url missing required fixed parts' do
+      let(:url) { 'a-title' }
+      let(:format) { '/foo%title%bar' }
+
+      it 'does not match' do
+        expect(factory.extract_params(url, format)).to be_nil
+      end
+    end
+  end
 end

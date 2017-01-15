@@ -1,9 +1,9 @@
 require 'rails_helper'
 
 describe ResourceUploader do
-  describe ".versions" do
-    it "has two versions" do
-      expect(ResourceUploader.versions.keys).to include(:thumb, :medium)
+  describe '.versions' do
+    it 'has three versions' do
+      expect(ResourceUploader.versions.keys).to match_array [:thumb, :medium, :avatar]
     end
   end
 end

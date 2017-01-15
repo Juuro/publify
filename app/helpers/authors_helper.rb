@@ -1,19 +1,18 @@
 module AuthorsHelper
+  include BlogHelper
 
   def display_profile_item(item, item_desc)
     return unless item.present?
     item = link_to(item, item) if is_url?(item)
     content_tag :li do
-      "#{item_desc} #{item.html_safe}".html_safe
+      safe_join([item_desc, item], ' ')
     end
   end
 
   def is_url?(str)
-    begin
-      [URI::HTTP, URI::HTTPS].include?(URI.parse(str.to_s).class)
-    rescue URI::InvalidURIError
-      false
-    end
+    [URI::HTTP, URI::HTTPS].include?(URI.parse(str.to_s).class)
+  rescue URI::InvalidURIError
+    false
   end
 
   def author_description(user)
@@ -36,9 +35,5 @@ module AuthorsHelper
 
   def just_name?(author)
     author.present? && !this_blog.link_to_author
-  end
-
-  def this_blog
-    @blog ||= Blog.default
   end
 end

@@ -39,15 +39,12 @@ module Publify
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
 
-    config.middleware.insert_before(Rack::Runtime, Rack::Rewrite) do
-      r301 %r{.*}, 'http://blog.i-wars.net$&', :if => Proc.new {|rack_env|
-        rack_env['SERVER_NAME'] != 'blog.i-wars.net'
-      }
+    config.to_prepare do
+      DeviseController.layout 'accounts'
     end
   end
 
   # Load included libraries.
-  require 'sidebar'
   require 'publify_sidebar'
   require 'publify_textfilters'
   require 'publify_avatar_gravatar'
@@ -58,7 +55,6 @@ module Publify
 
   require 'format'
   require 'i18n_interpolation_deprecation'
-  require 'route_cache'
   ## Required by the models themselves.
   # require 'spam_protection'
   require 'stateful'
@@ -67,12 +63,11 @@ module Publify
   require 'publify_guid'
   ## Required by the plugins themselves.
   # require 'publify_plugins'
-  require 'bare_migration'
   require 'publify_version'
-  require 'rails_patch/active_support'
-  require 'rails_patch/active_record'
 
-  require 'publify_login_system'
+  require 'theme'
+
+  Theme.register_themes "#{Rails.root}/themes"
 
   Date::DATE_FORMATS.merge!(
     :long_weekday => '%a %B %e, %Y %H:%M'

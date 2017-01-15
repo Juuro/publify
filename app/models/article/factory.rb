@@ -1,13 +1,13 @@
 class Article::Factory
-
   attr_reader :blog, :user
 
   def initialize(blog, user)
-    @blog, @user = blog, user
+    @blog = blog
+    @user = user
   end
 
   def default
-    Article.new.tap do |art|
+    blog.articles.build.tap do |art|
       art.allow_comments = blog.default_allow_comments
       art.allow_pings = blog.default_allow_pings
       art.text_filter = user.default_text_filter
@@ -16,37 +16,13 @@ class Article::Factory
   end
 
   def get_or_build_from(id)
-    return Article.find(id) if id.present?
+    return blog.articles.find(id) if id.present?
     default
   end
 
-  def match_permalink_format(parts, format)
-    specs = format.split('/')
-    specs.delete('')
-    parts = parts.split('/')
-    parts.delete('')
-
-    return if parts.length != specs.length
-
-    article_params = {}
-
-    specs.zip(parts).each do |spec, item|
-      if spec =~ /(.*)%(.*)%(.*)/
-        before_format = $1
-        format_string = $2
-        after_format = $3
-        result = item.gsub(/^#{before_format}(.*)#{after_format}$/, '\1')
-        article_params[format_string.to_sym] = result
-      elsif spec != item
-        return
-      end
-    end
-    begin
-      requested_article(article_params)
-    rescue
-      #Not really good.
-      # TODO :Check in request_article type of DATA made in next step
-    end
+  def match_permalink_format(path, format)
+    article_params = extract_params(path, format)
+    requested_article(article_params) if article_params
   end
 
   def requested_article(params = {})
@@ -54,4 +30,27 @@ class Article::Factory
     Article.find_by_permalink(params)
   end
 
+  def extract_params(path, format)
+    specs = format.split('/')
+    specs.delete('')
+    parts = path.split('/')
+    parts.delete('')
+
+    return if parts.length != specs.length
+
+    specs.zip(parts).reduce({}) do |result, (spec, item)|
+      if spec =~ /(.*)%(.*)%(.*)/
+        before_format = Regexp.last_match[1]
+        format_string = Regexp.last_match[2]
+        after_format = Regexp.last_match[3]
+        item =~ /^#{before_format}(.*)#{after_format}$/
+        break unless Regexp.last_match
+        value = Regexp.last_match[1]
+        result[format_string.to_sym] = value
+      elsif spec != item
+        break
+      end
+      result
+    end
+  end
 end

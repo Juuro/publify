@@ -1,20 +1,16 @@
 module ContentBase
-  def self.included base
+  def self.included(base)
     base.extend ClassMethods
   end
 
-  def blog
-    @blog ||= Blog.default
-  end
-
   attr_accessor :just_changed_published_status
-  alias_method :just_changed_published_status?, :just_changed_published_status
+  alias just_changed_published_status? just_changed_published_status
 
   def really_send_notifications
     interested_users.each do |value|
       send_notification_to_user(value)
     end
-    return true
+    true
   end
 
   def send_notification_to_user(user)
@@ -24,7 +20,7 @@ module ContentBase
   # Return HTML for some part of this object.
   def html(field = :all)
     if field == :all
-      generate_html(:all, content_fields.map{|f| self[f].to_s}.join("\n\n"))
+      generate_html(:all, content_fields.map { |f| self[f].to_s }.join("\n\n"))
     elsif html_map(field)
       generate_html(field)
     else
@@ -37,35 +33,35 @@ module ContentBase
   def generate_html(field, text = nil)
     text ||= self[field].to_s
     prehtml = html_preprocess(field, text).to_s
-    html = (text_filter || default_text_filter).filter_text_for_content(blog, prehtml, self) || prehtml
+    html = (text_filter || default_text_filter).filter_text(prehtml) || prehtml
     html_postprocess(field, html).to_s
   end
 
   # Post-process the HTML.  This is a noop by default, but Comment overrides it
   # to enforce HTML sanity.
-  def html_postprocess(field, html)
+  def html_postprocess(_field, html)
     html
   end
 
-  def html_preprocess(field, html)
+  def html_preprocess(_field, html)
     html
   end
 
-  def html_map field
+  def html_map(field)
     content_fields.include? field
   end
 
   def excerpt_text(length = 160)
-    if respond_to?(:excerpt) and (excerpt || "") != ""
-      text = generate_html(:excerpt, excerpt)
-    else
-      text = html(:all)
-    end
+    text = if respond_to?(:excerpt) && (excerpt || '') != ''
+             generate_html(:excerpt, excerpt)
+           else
+             html(:all)
+           end
 
     text = text.strip_html
 
-    return text.slice(0, length) +
-      (text.length > length ? '...' : '');
+    text.slice(0, length) +
+      (text.length > length ? '...' : '')
   end
 
   def invalidates_cache?(on_destruction = false)
@@ -78,7 +74,7 @@ module ContentBase
 
   def publish!
     self.published = true
-    self.save!
+    save!
   end
 
   # The default text filter.  Generally, this is the filter specified by blog.text_filter,
@@ -87,9 +83,8 @@ module ContentBase
     blog.text_filter_object
   end
 
-
   module ClassMethods
-    def content_fields *attribs
+    def content_fields(*attribs)
       class_eval "def content_fields; #{attribs.inspect}; end"
     end
 
